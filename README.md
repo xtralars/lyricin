@@ -1,2 +1,1 @@
-# lyricin
-LyricIn
+xtralars.github.io/lyricin
