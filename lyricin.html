@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LyricIn</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
+
+  :root {
+    --bg: #f5f0e8;
+    --card: #fffef9;
+    --ink: #1a1a2e;
+    --muted: #7a7a8a;
+    --accent: #0a66c2;
+    --accent2: #ff6b35;
+    --success: #2ecc71;
+    --warn: #f39c12;
+    --fail: #e74c3c;
+    --border: #e0dbd0;
+    --shadow: 0 4px 24px rgba(26,26,46,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Mono', monospace;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 48px;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(10,102,194,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255,107,53,0.06) 0%, transparent 50%);
+  }
+
+  header {
+    width: 100%;
+    max-width: 640px;
+    padding: 32px 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .logo-badge {
+    background: var(--accent);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    padding: 3px 10px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 6vw, 2.8rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    text-align: center;
+  }
+
+  h1 span { color: var(--accent); font-style: italic; }
+
+  .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .nav-area {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .nav-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 6px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .nav-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .q-counter {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 28px;
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 16px;
+  }
+
+  .day-badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .day-badge::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .lyric-box {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+    border: 1px solid rgba(10,102,194,0.15);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 20px 20px 20px 24px;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    line-height: 1.65;
+    color: var(--ink);
+    font-style: italic;
+    position: relative;
+  }
+
+  .lyric-box .quote-mark {
+    font-size: 4rem;
+    color: rgba(10,102,194,0.15);
+    font-family: 'DM Serif Display', serif;
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    line-height: 1;
+  }
+
+  .hint-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .hint-pill {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .hint-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .hint-pill.used { opacity: 0.5; cursor: default; pointer-events: none; }
+  .hint-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .hints-revealed {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .hint-item {
+    font-size: 12px;
+    padding: 8px 12px;
+    background: #fffbe6;
+    border: 1px solid #f0d060;
+    border-radius: 6px;
+    color: #7a6010;
+    animation: fadeSlide 0.3s ease;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  .shake { animation: shake 0.4s ease; }
+
+  .attempts-track {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .attempt-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    transition: all 0.2s;
+  }
+
+  .attempt-dot.wrong { background: var(--fail); border-color: var(--fail); }
+  .attempt-dot.correct { background: var(--success); border-color: var(--success); }
+  .attempt-dot.current { border-color: var(--accent); animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  .search-wrap {
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--muted); }
+
+  .autocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .autocomplete-item {
+    padding: 10px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover, .autocomplete-item.selected { background: #f0f7ff; }
+  .autocomplete-item .song { font-weight: 500; }
+  .autocomplete-item .artist-tag { font-size: 11px; color: var(--muted); }
+
+  .guess-btn {
+    width: 100%;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 13px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .guess-btn:hover { background: #0855a5; transform: translateY(-1px); }
+  .guess-btn:disabled { background: var(--border); color: var(--muted); cursor: default; transform: none; }
+
+  .skip-link {
+    display: block;
+    text-align: right;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .skip-link:hover { color: var(--ink); }
+
+  .guesses-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .guess-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    animation: fadeSlide 0.25s ease;
+  }
+
+  .guess-row.wrong { background: #fff0f0; border: 1px solid #fcc; color: var(--fail); }
+  .guess-row.correct { background: #efffef; border: 1px solid #9de; color: #1a7a3a; }
+  .guess-row.skipped { background: #fafafa; border: 1px solid var(--border); color: var(--muted); }
+  .guess-row .icon { font-size: 16px; }
+
+  /* Result */
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 28px;
+    width: 100%;
+    max-width: 640px;
+    text-align: center;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  .result-emoji { font-size: 48px; margin-bottom: 12px; }
+
+  .result-heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+
+  .result-song {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--accent);
+    font-style: italic;
+    margin-bottom: 4px;
+  }
+
+  .result-artist {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .attempt-dots-display {
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+  }
+
+  .original-lyric {
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: left;
+  }
+
+  .original-lyric strong {
+    color: var(--ink);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .result-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .share-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 11px 24px;
+    background: var(--accent2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+
+  .share-btn:hover { background: #e05a28; }
+
+  .next-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 11px 24px;
+    background: transparent;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+
+  .next-btn:hover { background: var(--accent); color: white; }
+  .next-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink);
+    color: white;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .copied-toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-badge">in</div>
+  <h1>Lyric<span>In</span></h1>
+  <div class="subtitle">Guess the song — corporate edition</div>
+</header>
+
+<div class="nav-area">
+  <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">← Prev</button>
+  <span class="q-counter" id="q-counter"></span>
+  <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next →</button>
+</div>
+
+<!-- Lyric card -->
+<div class="card" id="lyric-card">
+  <div class="day-badge" id="day-badge">Song 1 of 7</div>
+  <div class="lyric-box">
+    <span class="quote-mark">"</span>
+    <span id="lyric-text"></span>
+  </div>
+  <div class="hint-row" id="hint-row"></div>
+  <div class="hints-revealed" id="hints-revealed"></div>
+</div>
+
+<!-- Guess card -->
+<div class="card" id="guess-card">
+  <div class="day-badge">Your Guesses</div>
+  <div class="attempts-track" id="attempts-track"></div>
+
+  <div class="search-wrap">
+    <input type="text" id="search-input" placeholder="Search for a song title…" autocomplete="off" />
+    <div class="autocomplete" id="autocomplete" style="display:none"></div>
+  </div>
+
+  <button class="guess-btn" id="guess-btn" onclick="submitGuess()">Submit Guess</button>
+  <span class="skip-link" onclick="skipGuess()">Skip this one →</span>
+
+  <div class="guesses-list" id="guesses-list"></div>
+</div>
+
+<!-- Result card (shown when done) -->
+<div class="result-card" id="result-card" style="display:none"></div>
+
+<div class="copied-toast" id="toast">📋 Copied to clipboard!</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: 1,
+    linkedinLyric: "I am reaching out to circle back and proactively touch base regarding my sustained commitment to this impactful, long-term interpersonal engagement. Going forward, my love for you will continue to scale indefinitely.",
+    original: "I Will Always Love You",
+    artist: "Whitney Houston",
+    hints: ["1992 film soundtrack", "Starts with 'I Will...'", "4 words in the title"],
+    year: 1992,
+  },
+  {
+    id: 2,
+    linkedinLyric: "Excited to share that I have recently pivoted my geographic location and personal brand. All stakeholders were aligned on this decision. Looking forward to synergising in this new chapter and leveraging fresh opportunities.",
+    original: "New York, New York",
+    artist: "Frank Sinatra",
+    hints: ["A major global city", "The city name is said twice", "Classic jazz standard"],
+    year: 1980,
+  },
+  {
+    id: 3,
+    linkedinLyric: "I want to surface a high-priority pain point: my personal bandwidth is fully depleted and I am no longer able to sustain this collaborative relationship. Please note I am not okay. This is not sustainable.",
+    original: "I'm Not Okay (I Promise)",
+    artist: "My Chemical Romance",
+    hints: ["Early 2000s rock", "The title includes a parenthetical", "Starts with 'I'm...'"],
+    year: 2004,
+  },
+  {
+    id: 4,
+    linkedinLyric: "Thrilled to announce a full 360-degree personal transformation. I have strategically repositioned my adversarial relationships into learnings and emerged from that growth journey with unprecedented resilience.",
+    original: "Survivor",
+    artist: "Destiny's Child",
+    hints: ["Early 2000s girl group", "One word title", "Also a TV show name"],
+    year: 2001,
+  },
+  {
+    id: 5,
+    linkedinLyric: "As we approach end of fiscal quarter, I want to acknowledge that the cumulative pressure of delivering results in a high-stakes environment has led me to an emotional breaking point. I need to pause and reflect.",
+    original: "Under Pressure",
+    artist: "Queen & David Bowie",
+    hints: ["Two legendary artists collaborated", "Two words", "Also sampled in 'Ice Ice Baby'"],
+    year: 1981,
+  },
+  {
+    id: 6,
+    linkedinLyric: "Open to a candid conversation: I have been investing significant emotional capital in this partnership and my ROI has been suboptimal. At this juncture, I am prepared to exit the engagement entirely.",
+    original: "Irreplaceable",
+    artist: "Beyoncé",
+    hints: ["Solo female artist", "2006 hit", "Features the lyric 'to the left'"],
+    year: 2006,
+  },
+  {
+    id: 7,
+    linkedinLyric: "Delighted to share that after extensive networking and stakeholder alignment, I have secured an invitation to a high-profile social event this evening. My personal brand is thriving.",
+    original: "Fancy",
+    artist: "Iggy Azalea ft. Charli XCX",
+    hints: ["2014 rap hit", "One word title", "Rhymes with 'Nancy'"],
+    year: 2014,
+  },
+];
+
+const MAX_GUESSES = 5;
+let currentQ = 0;
+let states = QUESTIONS.map(() => ({ guesses: [], done: false, won: false, hintsRevealed: [] }));
+
+const SONG_POOL = [
+  ...QUESTIONS.map(q => ({ title: q.original, artist: q.artist })),
+  { title: "Bohemian Rhapsody", artist: "Queen" },
+  { title: "Shape of You", artist: "Ed Sheeran" },
+  { title: "Blinding Lights", artist: "The Weeknd" },
+  { title: "Rolling in the Deep", artist: "Adele" },
+  { title: "Smells Like Teen Spirit", artist: "Nirvana" },
+  { title: "Happy", artist: "Pharrell Williams" },
+  { title: "Uptown Funk", artist: "Mark Ronson ft. Bruno Mars" },
+  { title: "Someone Like You", artist: "Adele" },
+  { title: "Shake It Off", artist: "Taylor Swift" },
+  { title: "Old Town Road", artist: "Lil Nas X" },
+];
+
+function getState() { return states[currentQ]; }
+function getQuestion() { return QUESTIONS[currentQ]; }
+
+function render() {
+  const q = getQuestion();
+  const s = getState();
+
+  // Nav
+  document.getElementById('day-badge').textContent = `Song ${currentQ + 1} of ${QUESTIONS.length}`;
+  document.getElementById('q-counter').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
+  document.getElementById('prev-btn').disabled = currentQ === 0;
+  document.getElementById('next-btn').disabled = currentQ === QUESTIONS.length - 1;
+
+  // Lyric
+  document.getElementById('lyric-text').textContent = q.linkedinLyric;
+
+  // Hint buttons
+  const hintRow = document.getElementById('hint-row');
+  hintRow.innerHTML = '';
+  q.hints.forEach((hint, i) => {
+    const btn = document.createElement('button');
+    const isRevealed = s.hintsRevealed.includes(i);
+    btn.className = 'hint-pill' + (isRevealed ? ' active used' : '');
+    btn.textContent = isRevealed ? `💡 ${hint}` : `💡 Hint ${i + 1}`;
+    btn.onclick = () => revealHint(i);
+    hintRow.appendChild(btn);
+  });
+
+  // Attempts track
+  const track = document.getElementById('attempts-track');
+  track.innerHTML = '';
+  for (let i = 0; i < MAX_GUESSES; i++) {
+    const dot = document.createElement('div');
+    let cls = 'attempt-dot';
+    if (i < s.guesses.length) {
+      const g = s.guesses[i];
+      cls += g === '(Skipped)' ? ' wrong' : (g.toLowerCase() === q.original.toLowerCase() ? ' correct' : ' wrong');
+    } else if (i === s.guesses.length && !s.done) {
+      cls += ' current';
+    }
+    dot.className = cls;
+    track.appendChild(dot);
+  }
+
+  // Guesses list
+  const list = document.getElementById('guesses-list');
+  list.innerHTML = '';
+  s.guesses.forEach(g => {
+    const row = document.createElement('div');
+    const isCorrect = g.toLowerCase() === q.original.toLowerCase();
+    const isSkipped = g === '(Skipped)';
+    row.className = 'guess-row ' + (isCorrect ? 'correct' : isSkipped ? 'skipped' : 'wrong');
+    row.innerHTML = `<span class="icon">${isCorrect ? '✅' : isSkipped ? '⏭️' : '❌'}</span> ${g}`;
+    list.appendChild(row);
+  });
+
+  // Show/hide guess card vs result card
+  const guessCard = document.getElementById('guess-card');
+  const resultCard = document.getElementById('result-card');
+
+  if (s.done) {
+    guessCard.style.display = 'none';
+    resultCard.style.display = 'block';
+
+    const dotStr = s.guesses.map(g =>
+      g.toLowerCase() === q.original.toLowerCase() ? '🟢' : '🔴'
+    );
+    while (dotStr.length < MAX_GUESSES) dotStr.push('⬜');
+
+    resultCard.innerHTML = `
+      <div class="result-emoji">${s.won ? '🎉' : '😔'}</div>
+      <div class="result-heading">${s.won ? 'Nailed it!' : 'The answer was…'}</div>
+      <div class="result-song">${q.original}</div>
+      <div class="result-artist">by ${q.artist} (${q.year})</div>
+      <div class="attempt-dots-display">${dotStr.join('')}</div>
+      <div class="original-lyric">
+        <strong>The LinkedIn-ified lyric</strong>
+        ${q.linkedinLyric}
+      </div>
+      <div class="result-btns">
+        <button class="share-btn" onclick="share()">📤 Share Result</button>
+        ${currentQ < QUESTIONS.length - 1
+          ? `<button class="next-btn" onclick="navigate(1)">Next Lyric →</button>`
+          : `<button class="next-btn" disabled>All done! 🎵</button>`}
+      </div>
+    `;
+  } else {
+    guessCard.style.display = 'block';
+    resultCard.style.display = 'none';
+    document.getElementById('search-input').value = '';
+    document.getElementById('autocomplete').style.display = 'none';
+  }
+}
+
+function revealHint(i) {
+  const s = getState();
+  if (!s.hintsRevealed.includes(i)) {
+    s.hintsRevealed.push(i);
+    render();
+  }
+}
+
+function submitGuess() {
+  const input = document.getElementById('search-input');
+  const val = input.value.trim();
+  if (!val) return;
+
+  const s = getState();
+  const q = getQuestion();
+  if (s.done || s.guesses.length >= MAX_GUESSES) return;
+
+  s.guesses.push(val);
+  const correct = val.toLowerCase() === q.original.toLowerCase();
+
+  if (correct) {
+    s.done = true; s.won = true;
+  } else if (s.guesses.length >= MAX_GUESSES) {
+    s.done = true; s.won = false;
+  }
+
+  document.getElementById('autocomplete').style.display = 'none';
+  render();
+
+  if (!correct && !s.done) {
+    const card = document.getElementById('guess-card');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 400);
+  }
+}
+
+function skipGuess() {
+  const s = getState();
+  if (s.done) return;
+  s.guesses.push('(Skipped)');
+  if (s.guesses.length >= MAX_GUESSES) { s.done = true; s.won = false; }
+  render();
+}
+
+function navigate(dir) {
+  currentQ = Math.max(0, Math.min(QUESTIONS.length - 1, currentQ + dir));
+  render();
+}
+
+function share() {
+  const q = getQuestion();
+  const s = getState();
+  const dots = s.guesses.map(g => g.toLowerCase() === q.original.toLowerCase() ? '🟢' : '🔴');
+  while (dots.length < MAX_GUESSES) dots.push('⬜');
+  const text = `LyricIn 🎵 Song ${currentQ + 1}\n${dots.join('')}\nCan you guess the song from the LinkedIn-speak?`;
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  });
+}
+
+// Autocomplete
+document.getElementById('search-input').addEventListener('input', function () {
+  const val = this.value.toLowerCase();
+  const ac = document.getElementById('autocomplete');
+  if (!val) { ac.style.display = 'none'; return; }
+
+  const matches = SONG_POOL.filter(s => s.title.toLowerCase().includes(val)).slice(0, 6);
+  if (!matches.length) { ac.style.display = 'none'; return; }
+
+  ac.innerHTML = '';
+  matches.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'autocomplete-item';
+    item.innerHTML = `<span class="song">${m.title}</span><span class="artist-tag">${m.artist}</span>`;
+    item.onclick = () => {
+      document.getElementById('search-input').value = m.title;
+      ac.style.display = 'none';
+      submitGuess();
+    };
+    ac.appendChild(item);
+  });
+  ac.style.display = 'block';
+});
+
+document.getElementById('search-input').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') submitGuess();
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) {
+    document.getElementById('autocomplete').style.display = 'none';
+  }
+});
+
+render();
+</script>
+</body>
+</html>
